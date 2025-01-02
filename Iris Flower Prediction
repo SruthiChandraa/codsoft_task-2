@@ -1,0 +1,37 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
+from google.colab import files
+
+print("Please upload the IRIS dataset:")
+uploaded = files.upload()
+
+df = pd.read_csv(next(iter(uploaded)))
+print("First few rows of the dataset:")
+print(df.head())
+
+print("Column Names:", df.columns)
+
+target_column = 'species'
+
+label_encoder = LabelEncoder()
+df[target_column] = label_encoder.fit_transform(df[target_column])
+
+X = df.drop(target_column, axis=1)
+y = df[target_column]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+rf_model = RandomForestClassifier(random_state=42, n_estimators=100)
+rf_model.fit(X_train, y_train)
+
+y_pred = rf_model.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Random Forest Accuracy: {accuracy:.2f}")
+
+feature_importances = rf_model.feature_importances_
+for feature, importance in zip(X.columns, feature_importances):
+    print(f"Feature: {feature}, Importance: {importance:.2f}")
